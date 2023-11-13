@@ -51,7 +51,10 @@ from .util import (
     SLRU_METRICS,
     SNAPSHOT_TXID_METRICS,
     SNAPSHOT_TXID_METRICS_LT_13,
+    STAT_SUBSCRIPTION_METRICS,
+    STAT_SUBSCRIPTION_STATS_METRICS,
     STAT_WAL_METRICS,
+    SUBSCRIPTION_STATE_METRICS,
     WAL_FILE_METRICS,
     DatabaseConfigurationError,  # noqa: F401
     fmt,
@@ -59,7 +62,7 @@ from .util import (
     payload_pg_version,
     warning_with_tags,
 )
-from .version_utils import V9, V9_2, V10, V13, V14, VersionUtils
+from .version_utils import V9, V9_2, V10, V13, V14, V15, VersionUtils
 
 try:
     import datadog_agent
@@ -264,6 +267,7 @@ class PostgreSql(AgentCheck):
                 queries.append(QUERY_PG_STAT_WAL_RECEIVER)
                 queries.append(WAL_FILE_METRICS)
             queries.append(QUERY_PG_REPLICATION_SLOTS)
+            queries.append(STAT_SUBSCRIPTION_METRICS)
 
         if self.version >= V13:
             queries.append(SNAPSHOT_TXID_METRICS)
@@ -272,6 +276,9 @@ class PostgreSql(AgentCheck):
         if self.version >= V14:
             if self.is_aurora is False:
                 queries.append(STAT_WAL_METRICS)
+            queries.append(SUBSCRIPTION_STATE_METRICS)
+        if self.version >= V15:
+            queries.append(STAT_SUBSCRIPTION_STATS_METRICS)
 
         if not queries:
             self.log.debug("no dynamic queries defined")
